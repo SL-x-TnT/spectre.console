@@ -20,6 +20,8 @@ internal sealed class ListPrompt<T>
         bool searchEnabled,
         int requestedPageSize,
         bool wrapAround,
+        bool onlyShowSearchedResults,
+        Func<T, string, bool>? searchFunc,
         CancellationToken cancellationToken = default)
     {
         if (tree is null)
@@ -47,7 +49,7 @@ internal sealed class ListPrompt<T>
             throw new InvalidOperationException("Cannot show an empty selection prompt. Please call the AddChoice() method to configure the prompt.");
         }
 
-        var state = new ListPromptState<T>(nodes, converter, _strategy.CalculatePageSize(_console, nodes.Count, requestedPageSize), wrapAround, selectionMode, skipUnselectableItems, searchEnabled);
+        var state = new ListPromptState<T>(nodes, converter, _strategy.CalculatePageSize(_console, nodes.Count, requestedPageSize), wrapAround, selectionMode, skipUnselectableItems, searchEnabled, onlyShowSearchedResults, searchFunc);
         var hook = new ListPromptRenderHook<T>(_console, () => BuildRenderable(state));
 
         using (new RenderHookScope(_console, hook))
@@ -80,6 +82,12 @@ internal sealed class ListPrompt<T>
 
         hook.Clear();
         _console.Cursor.Show();
+
+        //Fix state index. Bad way to do this, but only trying to get something that works rather than clean
+        if (onlyShowSearchedResults)
+        {
+            state.Index = state.Items.IndexOf(state.SeachItems[state.Index]);
+        }
 
         return state;
     }
@@ -118,7 +126,7 @@ internal sealed class ListPrompt<T>
         return _strategy.Render(
             _console,
             scrollable, cursorIndex,
-            state.Items.Skip(skip).Take(take)
+            state.SeachItems.Skip(skip).Take(take)
                 .Select((node, index) => (index, node)),
             state.SkipUnselectableItems,
             state.SearchText);

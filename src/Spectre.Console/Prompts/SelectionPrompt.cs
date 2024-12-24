@@ -52,6 +52,8 @@ public sealed class SelectionPrompt<T> : IPrompt<T>, IListPromptStrategy<T>
     /// </summary>
     public Func<T, string>? Converter { get; set; }
 
+
+
     /// <summary>
     /// Gets or sets the text that will be displayed if there are more choices to show.
     /// </summary>
@@ -67,6 +69,16 @@ public sealed class SelectionPrompt<T> : IPrompt<T>, IListPromptStrategy<T>
     /// Gets or sets a value indicating whether or not search is enabled.
     /// </summary>
     public bool SearchEnabled { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether to hide results that don't meet search criteria.
+    /// </summary>
+    public bool OnlyShowSearchedResults { get; set; } = false;
+
+    /// <summary>
+    /// Gets or sets the function to display the search results.
+    /// </summary>
+    public Func<T, string, bool>? SearchFunc { get; set; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="SelectionPrompt{T}"/> class.
@@ -100,7 +112,7 @@ public sealed class SelectionPrompt<T> : IPrompt<T>, IListPromptStrategy<T>
         // Create the list prompt
         var prompt = new ListPrompt<T>(console, this);
         var converter = Converter ?? TypeConverterHelper.ConvertToString;
-        var result = await prompt.Show(_tree, converter, Mode, true, SearchEnabled, PageSize, WrapAround, cancellationToken).ConfigureAwait(false);
+        var result = await prompt.Show(_tree, converter, Mode, true, SearchEnabled, PageSize, WrapAround, OnlyShowSearchedResults, SearchFunc, cancellationToken).ConfigureAwait(false);
 
         // Return the selected item
         return result.Items[result.Index].Data;
