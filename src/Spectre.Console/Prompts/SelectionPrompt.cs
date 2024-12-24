@@ -52,8 +52,6 @@ public sealed class SelectionPrompt<T> : IPrompt<T>, IListPromptStrategy<T>
     /// </summary>
     public Func<T, string>? Converter { get; set; }
 
-
-
     /// <summary>
     /// Gets or sets the text that will be displayed if there are more choices to show.
     /// </summary>
@@ -79,6 +77,11 @@ public sealed class SelectionPrompt<T> : IPrompt<T>, IListPromptStrategy<T>
     /// Gets or sets the function to display the search results.
     /// </summary>
     public Func<T, string, bool>? SearchFunc { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating the key to abort the prompt.
+    /// </summary>
+    public ConsoleKey? AbortKey { get; set; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="SelectionPrompt{T}"/> class.
@@ -121,6 +124,11 @@ public sealed class SelectionPrompt<T> : IPrompt<T>, IListPromptStrategy<T>
     /// <inheritdoc/>
     ListPromptInputResult IListPromptStrategy<T>.HandleInput(ConsoleKeyInfo key, ListPromptState<T> state)
     {
+        if (AbortKey == key.Key)
+        {
+            return ListPromptInputResult.Abort;
+        }
+
         if (key.Key == ConsoleKey.Enter || key.Key == ConsoleKey.Spacebar || key.Key == ConsoleKey.Packet)
         {
             // Selecting a non leaf in "leaf mode" is not allowed

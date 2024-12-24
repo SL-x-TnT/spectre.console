@@ -57,6 +57,11 @@ public sealed class MultiSelectionPrompt<T> : IPrompt<List<T>>, IListPromptStrat
     /// </summary>
     public SelectionMode Mode { get; set; } = SelectionMode.Leaf;
 
+    /// <summary>
+    /// Gets or sets a value indicating the key to abort the prompt.
+    /// </summary>
+    public ConsoleKey? AbortKey { get; set; }
+
     internal ListPromptTree<T> Tree { get; }
 
     /// <summary>
@@ -149,6 +154,11 @@ public sealed class MultiSelectionPrompt<T> : IPrompt<List<T>>, IListPromptStrat
     /// <inheritdoc/>
     ListPromptInputResult IListPromptStrategy<T>.HandleInput(ConsoleKeyInfo key, ListPromptState<T> state)
     {
+        if (AbortKey == key.Key)
+        {
+            return ListPromptInputResult.Abort;
+        }
+
         if (key.Key == ConsoleKey.Enter)
         {
             if (Required && state.Items.None(x => x.IsSelected))

@@ -1,3 +1,5 @@
+using Spectre.Console.Prompts;
+
 namespace Spectre.Console;
 
 internal sealed class ListPrompt<T>
@@ -71,6 +73,10 @@ internal sealed class ListPrompt<T>
                 if (result == ListPromptInputResult.Submit)
                 {
                     break;
+                }
+                else if (result == ListPromptInputResult.Abort)
+                {
+                    throw new PromptAbortException("Prompt abort key pressed");
                 }
 
                 if (state.Update(key) || result == ListPromptInputResult.Refresh)
