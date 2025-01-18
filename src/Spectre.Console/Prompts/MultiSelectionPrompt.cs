@@ -81,9 +81,10 @@ public sealed class MultiSelectionPrompt<T> : IPrompt<List<T>>, IListPromptStrat
     /// </summary>
     /// <param name="item">The item to add.</param>
     /// <returns>A <see cref="IMultiSelectionItem{T}"/> so that multiple calls can be chained.</returns>
-    public IMultiSelectionItem<T> AddChoice(T item)
+    public IMultiSelectionItem<T> AddChoice(T item, bool isSelected = false)
     {
         var node = new ListPromptItem<T>(item);
+        node.IsSelected = isSelected;
         Tree.Add(node);
         return node;
     }
